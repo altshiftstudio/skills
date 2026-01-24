@@ -1,13 +1,22 @@
 # alt-shift studio skills
 
-This is a collection of agentic skills we've created for use on our Product & Design projects. We're sharing them publicly under the MIT license. We've designed these skills to be lightweight, and useful. They are easy on tokens, yet highly capable.
+This is a collection of agent skills we've created for use on our Product & Design projects. We're sharing them publicly under the MIT license. We've designed these skills to be lightweight, and useful. They are easy on tokens, yet highly capable.
 
 ## Quick Start
 
-1.  **Clone the repository**:
+### 1. **Recommended**: Add via CLI
+The fastest way to install our skills into your agent's global or workspace directory:
+```bash
+npx skills add altshiftstudio/skills
+```
+
+### 2. Manual Installation
+If you prefer to do it manually:
+
+1. **Clone the repository**:
 Download or clone this repository:
-```bash<>
-    git clone https://github.com/alt-shift-studio/skills.git
+```bash
+git clone https://github.com/altshiftstudio/skills.git
 ```
 
 2.  **Install a Skill**:
