@@ -19,11 +19,13 @@ class Canvas:
         - Calculates dynamic height if not provided to prevent scrollbars.
         """
         if height is None:
-            # Rough estimation: Base 40px + 20px per line
+            # Calibrated Simplification: Base 50px + 25px per line
             lines = text.count('\n') + 1
-            if len(text) > 30:
-                 lines += len(text) // 30
-            height = 40 + (25 * lines)
+            height = 50 + (lines * 25)
+            
+            # Wrap check: 6px per character approx
+            if len(text) > (width / 6):
+                 height += (len(text) // (width / 6)) * 20
             
         nid = node_id if node_id else self._get_id()
         n = {
@@ -62,7 +64,7 @@ class Canvas:
         - If 'nodes_in_group' (list of IDs) is provided, calculates bounds automatically.
         - Otherwise, requires x, y, width, height.
         """
-        padding = 50
+        padding = 30
         header_height = 60
         
         if nodes_in_group:
@@ -80,7 +82,7 @@ class Canvas:
             x = min_x - padding
             y = min_y - padding - header_height # Extra space for label
             width = (max_x - x) + padding
-            height = (max_y - y) + padding
+            height = (max_y - y) + padding + 20 # Bottom buffer
             
         gid = node_id if node_id else self._get_id()
         g = {
@@ -117,25 +119,20 @@ class Canvas:
                 dy = tn['y'] - fn['y']
                 
                 # Thresholds
-                h_threshold = fn['width'] + 10
-                v_threshold = 100 # If within this Y range, treat as "side-by-side"
+                h_dist = abs(dx)
+                v_dist = abs(dy)
                 
-                # Target is significantly to the RIGHT
-                if dx >= h_threshold and abs(dy) < v_threshold:
-                    f_s = "right"
-                    t_s = "left"
-                # Target is significantly to the LEFT
-                elif dx < -(tn['width'] + 50) and abs(dy) < v_threshold:
-                    f_s = "left"
-                    t_s = "right"
-                # Target is BELOW (or roughly below)
-                elif dy > 0:
-                    f_s = "bottom"
-                    t_s = "top"
-                # Target is ABOVE
+                # If further apart horizontally than vertically, use left/right
+                if h_dist > v_dist:
+                    if dx > 0:
+                        f_s, t_s = "right", "left"
+                    else:
+                        f_s, t_s = "left", "right"
                 else:
-                    f_s = "top"
-                    t_s = "bottom"
+                    if dy > 0:
+                        f_s, t_s = "bottom", "top"
+                    else:
+                        f_s, t_s = "top", "bottom"
                 
                 # Apply defaults if not provided
                 if not from_side: from_side = f_s
@@ -169,18 +166,49 @@ class Canvas:
         Allows for both horizontal rows and vertical columns.
         """
         groups = [n for n in self.nodes if n['type'] == 'group']
+        standard_nodes = [n for n in self.nodes if n['type'] != 'group']
+        
         if not groups:
             return
             
-        # Sort by current X position to process left-to-right
+        # 1. Resolve overlaps between standard nodes (like Titles) and Groups
+        # Only push down if the group's HEADER area overlaps a standard node.
+        for g in groups:
+            g_top = g['y']
+            g_left = g['x']
+            g_right = g['x'] + g['width']
+            
+            max_push_down = 0
+            for sn in standard_nodes:
+                # CRITICAL: A group should never be pushed down by its OWN members
+                if g['id'] in self.group_map and sn['id'] in self.group_map[g['id']]:
+                    continue
+                    
+                sn_bottom = sn['y'] + sn['height']
+                sn_left = sn['x']
+                sn_right = sn['x'] + sn['width']
+                
+                # Check intersection (Horizontal AND Vertical)
+                if not (g_right < sn_left or g_left > sn_right):
+                    # Check if group is actually "under" or "overlapping" the node
+                    if g_top < sn_bottom + 40:
+                        push = (sn_bottom + 60) - g_top
+                        if push > max_push_down:
+                            max_push_down = push
+            
+            if max_push_down > 0:
+                g['y'] += max_push_down
+                if g['id'] in self.group_map:
+                    for nid in self.group_map[g['id']]:
+                        n = next((node for node in self.nodes if node['id'] == nid), None)
+                        if n: n['y'] += max_push_down
+
+        # 2. Resolve horizontal overlaps between groups
         groups.sort(key=lambda g: g['x'])
-        
-        GAP_BETWEEN_GROUPS = 100
+        GAP_BETWEEN_GROUPS = 60
         
         for i in range(1, len(groups)):
             g_current = groups[i]
-            
-            # Find max X edge of any previous group that overlaps on Y
             max_prev_x_edge = None
             
             curr_y_start = g_current['y']
@@ -188,37 +216,34 @@ class Canvas:
             
             for j in range(i):
                 g_prev = groups[j]
-                
                 prev_y_start = g_prev['y']
                 prev_y_end = g_prev['y'] + g_prev['height']
                 
-                # Check Vertical Overlap (Range intersection)
                 if (curr_y_start < prev_y_end) and (prev_y_start < curr_y_end):
                     prev_edge = g_prev['x'] + g_prev['width']
                     if max_prev_x_edge is None or prev_edge > max_prev_x_edge:
                         max_prev_x_edge = prev_edge
             
-            # If we found Y-overlapping predecessors, ensure separation
             if max_prev_x_edge is not None:
                 needed_x = max_prev_x_edge + GAP_BETWEEN_GROUPS
                 if g_current['x'] < needed_x:
-                    # Collision detected -> Shift right
                     shift = needed_x - g_current['x']
                     g_current['x'] += shift
-                    
-                    # Shift children
                     if g_current['id'] in self.group_map:
                         for nid in self.group_map[g_current['id']]:
                             node = next((n for n in self.nodes if n['id'] == nid), None)
-                            if node:
-                                node['x'] += shift
+                            if node: node['x'] += shift
 
     def save(self, filepath):
         # Auto-fix layout before saving
         self._resolve_collisions()
         
+        # Proper Z-indexing: Groups must be first in the array to render behind nodes
+        sorted_nodes = [n for n in self.nodes if n['type'] == 'group'] + \
+                       [n for n in self.nodes if n['type'] != 'group']
+        
         data = {
-            "nodes": self.nodes,
+            "nodes": sorted_nodes,
             "edges": self.edges
         }
         with open(filepath, 'w') as f:
