@@ -1,9 +1,16 @@
+# --- System Files ---
 .DS_Store
+
+# --- Python ---
 __pycache__/
 *.pyc
+
+# --- AI Agents & IDE Tools ---
 .agent/
 .gemini/
 .claude/
 .codex/
+
+# --- Project Specific (Obsidian Canvas) ---
 *.canvas
 !skills/**/*.canvas

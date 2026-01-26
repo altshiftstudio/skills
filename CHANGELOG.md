@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2026-01-26
+
+- **Pencil.dev Design Skill**: Added new skill for working with .pen design files (JSON-based open design file format).
+- **Obsidian Canvas Refactor**: Refactored `canvas_lib.py`:
+    - Dataclasses for cleaner code.
+    - Geometry helpers for collision detection.
+    - Added `Canvas.from_dict()` class method for loading canvas data.
+    - Added comprehensive type annotations throughout the library.
+    - Split logic into `layout()`, `to_dict()`, `_resolve_collisions()` methods.
+
 ## [1.1.0] - 2026-01-25
 
 ### Obsidian Canvas Skill Improvements
