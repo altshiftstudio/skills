@@ -1,0 +1,422 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://pencil.design/schema/v2.6/pen.json",
+  "title": "PEN Design Format",
+  "description": "Open JSON-based design format for UI/UX design systems",
+  "type": "object",
+  "required": ["version", "children"],
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Format version (e.g., '2.6')",
+      "pattern": "^\\d+\\.\\d+$"
+    },
+    "children": {
+      "type": "array",
+      "description": "Root-level design elements",
+      "items": { "$ref": "#/$defs/element" }
+    },
+    "themes": {
+      "$ref": "#/$defs/themesConfig"
+    },
+    "variables": {
+      "$ref": "#/$defs/variablesConfig"
+    }
+  },
+  "$defs": {
+    "element": {
+      "oneOf": [
+        { "$ref": "#/$defs/frame" },
+        { "$ref": "#/$defs/text" },
+        { "$ref": "#/$defs/rectangle" },
+        { "$ref": "#/$defs/path" },
+        { "$ref": "#/$defs/image" },
+        { "$ref": "#/$defs/ref" },
+        { "$ref": "#/$defs/iconFont" },
+        { "$ref": "#/$defs/prompt" }
+      ]
+    },
+    "baseElement": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique element identifier" },
+        "name": { "type": "string", "description": "Human-readable element name" },
+        "x": { "type": "number", "description": "X position (absolute layout)" },
+        "y": { "type": "number", "description": "Y position (absolute layout)" },
+        "enabled": { "type": "boolean", "default": true },
+        "opacity": { "type": "number", "minimum": 0, "maximum": 1 },
+        "rotation": { "type": "number", "description": "Rotation in degrees" }
+      },
+      "required": ["type", "id"]
+    },
+    "frame": {
+      "allOf": [
+        { "$ref": "#/$defs/baseElement" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "frame" },
+            "reusable": { "type": "boolean", "description": "Marks as reusable component" },
+            "context": { "type": "string", "description": "AI context description" },
+            "theme": { "$ref": "#/$defs/themeOverride" },
+            "clip": { "type": "boolean" },
+            "width": { "$ref": "#/$defs/dimension" },
+            "height": { "$ref": "#/$defs/dimension" },
+            "fill": { "$ref": "#/$defs/fillValue" },
+            "cornerRadius": { "$ref": "#/$defs/cornerRadius" },
+            "stroke": { "$ref": "#/$defs/stroke" },
+            "effect": { "$ref": "#/$defs/effect" },
+            "layout": { "$ref": "#/$defs/layoutMode" },
+            "gap": { "$ref": "#/$defs/spacing" },
+            "padding": { "$ref": "#/$defs/paddingValue" },
+            "justifyContent": { "$ref": "#/$defs/justifyContent" },
+            "alignItems": { "$ref": "#/$defs/alignItems" },
+            "children": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/element" }
+            },
+            "slot": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "IDs of elements that can fill this slot"
+            }
+          },
+          "required": ["type"]
+        }
+      ]
+    },
+    "text": {
+      "allOf": [
+        { "$ref": "#/$defs/baseElement" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "text" },
+            "content": { "type": "string", "description": "Text content" },
+            "fill": { "$ref": "#/$defs/fillValue" },
+            "fontFamily": { "$ref": "#/$defs/tokenOrString" },
+            "fontSize": { "type": "number" },
+            "fontWeight": { 
+              "oneOf": [
+                { "type": "string" },
+                { "type": "number" }
+              ]
+            },
+            "lineHeight": { "type": "number" },
+            "letterSpacing": { "type": "number" },
+            "textAlign": {
+              "type": "string",
+              "enum": ["left", "center", "right", "justify"]
+            },
+            "textAlignVertical": {
+              "type": "string",
+              "enum": ["top", "middle", "bottom"]
+            },
+            "textGrowth": {
+              "type": "string",
+              "enum": ["auto", "fixed-width"]
+            },
+            "width": { "$ref": "#/$defs/dimension" }
+          },
+          "required": ["type", "content"]
+        }
+      ]
+    },
+    "rectangle": {
+      "allOf": [
+        { "$ref": "#/$defs/baseElement" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "rectangle" },
+            "width": { "type": "number" },
+            "height": { "type": "number" },
+            "fill": { "$ref": "#/$defs/fillValue" },
+            "cornerRadius": { "$ref": "#/$defs/cornerRadius" },
+            "stroke": { "$ref": "#/$defs/stroke" }
+          },
+          "required": ["type", "width", "height"]
+        }
+      ]
+    },
+    "path": {
+      "allOf": [
+        { "$ref": "#/$defs/baseElement" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "path" },
+            "geometry": { "type": "string", "description": "SVG path data" },
+            "width": { "type": "number" },
+            "height": { "type": "number" },
+            "fill": { "$ref": "#/$defs/fillValue" },
+            "stroke": { "$ref": "#/$defs/stroke" }
+          },
+          "required": ["type", "geometry"]
+        }
+      ]
+    },
+    "image": {
+      "allOf": [
+        { "$ref": "#/$defs/baseElement" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "image" },
+            "width": { "type": "number" },
+            "height": { "type": "number" },
+            "url": { "type": "string" },
+            "mode": {
+              "type": "string",
+              "enum": ["fill", "fit", "crop", "tile"]
+            }
+          },
+          "required": ["type"]
+        }
+      ]
+    },
+    "ref": {
+      "allOf": [
+        { "$ref": "#/$defs/baseElement" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "ref" },
+            "ref": { "type": "string", "description": "ID of referenced component" },
+            "reusable": { "type": "boolean" },
+            "fill": { "$ref": "#/$defs/fillValue" },
+            "descendants": {
+              "type": "object",
+              "description": "Property overrides keyed by descendant ID",
+              "additionalProperties": {
+                "type": "object",
+                "description": "Properties to override on descendant"
+              }
+            }
+          },
+          "required": ["type", "ref"]
+        }
+      ]
+    },
+    "iconFont": {
+      "allOf": [
+        { "$ref": "#/$defs/baseElement" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "icon_font" },
+            "iconFontName": { "type": "string", "description": "Icon name" },
+            "iconFontFamily": { "type": "string", "description": "Icon font (e.g., 'lucide')" },
+            "width": { "type": "number" },
+            "height": { "type": "number" },
+            "fill": { "$ref": "#/$defs/fillValue" }
+          },
+          "required": ["type", "iconFontName", "iconFontFamily"]
+        }
+      ]
+    },
+    "prompt": {
+      "allOf": [
+        { "$ref": "#/$defs/baseElement" },
+        {
+          "type": "object",
+          "properties": {
+            "type": { "const": "prompt" },
+            "model": { "type": "string", "description": "AI model identifier" },
+            "content": { "type": "string", "description": "Prompt text" },
+            "width": { "type": "number" },
+            "height": { "type": "number" }
+          },
+          "required": ["type", "content"]
+        }
+      ]
+    },
+    "dimension": {
+      "oneOf": [
+        { "type": "number" },
+        { "type": "string", "pattern": "^(fill_container|fit_content)(\\(\\d+\\))?$" },
+        { "type": "string", "pattern": "^\\$--" }
+      ],
+      "description": "Number, fill_container, fit_content, or token reference"
+    },
+    "tokenOrString": {
+      "type": "string",
+      "description": "Token reference ($--name) or literal value"
+    },
+    "fillValue": {
+      "oneOf": [
+        { "type": "string", "description": "Color hex or token reference" },
+        { "$ref": "#/$defs/fillObject" }
+      ]
+    },
+    "fillObject": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["color", "gradient", "image"]
+        },
+        "color": { "type": "string" },
+        "opacity": { "type": "number" },
+        "enabled": { "type": "boolean" },
+        "url": { "type": "string" },
+        "mode": { "type": "string" }
+      },
+      "required": ["type"]
+    },
+    "cornerRadius": {
+      "oneOf": [
+        { "type": "number" },
+        { "type": "string", "pattern": "^\\$--" },
+        {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              { "type": "number" },
+              { "type": "string", "pattern": "^\\$--" }
+            ]
+          },
+          "minItems": 4,
+          "maxItems": 4,
+          "description": "[topLeft, topRight, bottomRight, bottomLeft]"
+        }
+      ]
+    },
+    "stroke": {
+      "type": "object",
+      "properties": {
+        "align": {
+          "type": "string",
+          "enum": ["inside", "center", "outside"]
+        },
+        "thickness": {
+          "oneOf": [
+            { "type": "number" },
+            {
+              "type": "object",
+              "properties": {
+                "top": { "type": "number" },
+                "right": { "type": "number" },
+                "bottom": { "type": "number" },
+                "left": { "type": "number" }
+              }
+            }
+          ]
+        },
+        "fill": { "$ref": "#/$defs/fillValue" },
+        "join": { "type": "string", "enum": ["miter", "round", "bevel"] },
+        "cap": { "type": "string", "enum": ["butt", "round", "square"] }
+      }
+    },
+    "effect": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["shadow", "blur", "glow"]
+        },
+        "shadowType": {
+          "type": "string",
+          "enum": ["outer", "inner"]
+        },
+        "color": { "type": "string" },
+        "offset": {
+          "type": "object",
+          "properties": {
+            "x": { "type": "number" },
+            "y": { "type": "number" }
+          }
+        },
+        "blur": { "type": "number" },
+        "spread": { "type": "number" }
+      }
+    },
+    "layoutMode": {
+      "oneOf": [
+        { "type": "string", "enum": ["none", "horizontal", "vertical"] },
+        { "type": "null" }
+      ]
+    },
+    "spacing": {
+      "oneOf": [
+        { "type": "number" },
+        { "type": "string", "pattern": "^\\$--" }
+      ]
+    },
+    "paddingValue": {
+      "oneOf": [
+        { "type": "number" },
+        {
+          "type": "array",
+          "description": "[vertical, horizontal] or [top, right, bottom, left]",
+          "items": { "type": "number" },
+          "minItems": 2,
+          "maxItems": 4
+        }
+      ]
+    },
+    "justifyContent": {
+      "type": "string",
+      "enum": ["start", "center", "end", "space_between", "space_around"]
+    },
+    "alignItems": {
+      "type": "string",
+      "enum": ["start", "center", "end", "stretch"]
+    },
+    "themeOverride": {
+      "type": "object",
+      "description": "Theme values for this element",
+      "additionalProperties": { "type": "string" }
+    },
+    "themesConfig": {
+      "type": "object",
+      "description": "Theme dimension definitions",
+      "additionalProperties": {
+        "type": "array",
+        "items": { "type": "string" }
+      },
+      "examples": [{ "Mode": ["Light", "Dark"] }]
+    },
+    "variablesConfig": {
+      "type": "object",
+      "description": "Design token definitions",
+      "additionalProperties": { "$ref": "#/$defs/variable" }
+    },
+    "variable": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["color", "string", "number"]
+        },
+        "value": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "number" },
+            {
+              "type": "array",
+              "items": { "$ref": "#/$defs/themedValue" }
+            }
+          ]
+        }
+      },
+      "required": ["type", "value"]
+    },
+    "themedValue": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "oneOf": [
+            { "type": "string" },
+            { "type": "number" }
+          ]
+        },
+        "theme": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      },
+      "required": ["value"]
+    }
+  }
+}
