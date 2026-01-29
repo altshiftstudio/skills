@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## [1.3.0] - 2026-01-29
+
+- **New Skill**: Added `design-brief` skill for creating strategic design briefs.
+    - **Problem Formula**: Structured format for articulating user pain points.
+    - **Goals & Success Criteria**: Table format to enforce measurable outcomes.
+    - **Inspiration**: "Dos & Don'ts" table for visual/UX references.
+    - **Edge Cases Logic**: Checklist for states like Empty, Loading, Error, Offline.
+    - **Writing Guidelines**: Rules for concise, impactful product writing.
+- Added `flowchart.canvas` to Obsidian Canvas skill's `assets` directory.
+
 ## [1.2.0] - 2026-01-26
 
 - **Pencil.dev Design Skill**: Added new skill for working with .pen design files (JSON-based open design file format).
@@ -12,6 +23,7 @@ All notable changes to this project will be documented in this file.
     - Added comprehensive type annotations throughout the library.
     - Split logic into `layout()`, `to_dict()`, `_resolve_collisions()` methods.
 
+
 ## [1.1.0] - 2026-01-25
 
 ### Obsidian Canvas Skill Improvements
@@ -20,6 +32,7 @@ All notable changes to this project will be documented in this file.
 - **Visual Hierarchy**: Updated `SKILL.md` guidelines to recommend H1 for titles, H2 for sections, and H3 for node content.
 - **Improved Node Sizing**: Recalibrated base height and line height multipliers in `canvas_lib.py` for better readability.
 - **Enhanced Edge Routing**: Optimized the automatic connection point selection (`top`, `bottom`, `left`, `right`) based on relative distances.
+
 
 ## [1.0.0] - 2026-01-24
 
