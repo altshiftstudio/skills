@@ -30,4 +30,6 @@ If you prefer to do it manually:
 | Skill | Description |
 | :--- | :--- |
 | [**Creativity**](./skills/creativity/SKILL.md) | Generates non-obvious ideas using Verbalized Sampling (VS-CoT). Best for qucikly generating diverse ideas. |
+| [**Design Brief**](./skills/design-brief/SKILL.md) | Create strategic design briefs that empower designers. Includes problem formula, success criteria, and edge cases logic. |
 | [**Obsidian Canvas**](./skills/obsidian-canvas/SKILL.md) | Create and edit JSON Canvas files (`.canvas`) used in Obsidian. Uses custom Pythin CLI to avoid collisions and weird layouts. |
+| [**Pen Design**](./skills/pen-design/SKILL.md) | Guide for working with Pencil (`.pen`) design files. Reading, creating, or modifying UI layouts, typography, or styling. |
