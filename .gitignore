@@ -11,6 +11,5 @@ __pycache__/
 .claude/
 .codex/
 
-# --- Project Specific (Obsidian Canvas) ---
-*.canvas
-!skills/**/*.canvas
+# --- Test outputs ---
+/test
