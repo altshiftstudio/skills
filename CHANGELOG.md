@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.3.1] - 2026-01-29
+
+- **Pen-Design Skill Rewrite**: Complete overhaul for maximum quality.
+    - **Workflow-first approach**: Reorganized around 4-phase workflow (Orient → Design → Build → Refine).
+    - **MCP Integration**: Added full Pencil MCP tooling guidance and operations quick reference.
+    - **New Reference**: Added `mcp-operations.md` with detailed operation syntax, component patterns, and examples.
+    - **Improved Progressive Disclosure**: "When to Read" table for reference files.
+    - **Enhanced Description**: Expanded trigger scenarios for better skill activation.
+    - **Streamlined patterns.md**: Added table of contents and cleaner structure.
+
 ## [1.3.0] - 2026-01-29
 
 - **New Skill**: Added `design-brief` skill for creating strategic design briefs.

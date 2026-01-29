@@ -1,22 +1,46 @@
-# PEN Format Patterns Reference
+# PEN Format Patterns
 
-Detailed patterns and examples for PEN design manipulation.
+Element creation, styling, and theming examples for .pen files.
+
+## Contents
+
+- [Elements](#elements)
+  - [Frame](#frame)
+  - [Text](#text)
+  - [Icon](#icon)
+  - [Component Instance](#component-instance)
+- [Styling](#styling)
+  - [Fill](#fill)
+  - [Stroke](#stroke)
+  - [Corner Radius](#corner-radius)
+  - [Shadow](#shadow)
+- [Layout](#layout)
+  - [Padding](#padding)
+  - [Sizing](#sizing)
+- [Theming](#theming)
+  - [Variable Definition](#variable-definition)
+  - [Common Tokens](#common-tokens)
+- [Advanced](#advanced)
+  - [Slots](#slots)
+  - [AI Context](#ai-context)
 
 ---
 
-## Creating Elements
+## Elements
 
-### Frame (Container)
+### Frame
+
 ```json
 {
   "type": "frame",
-  "id": "unique-id",
+  "id": "btn01",
   "name": "Button/Primary",
   "reusable": true,
   "fill": "$--primary",
   "cornerRadius": "$--radius-m",
   "padding": [12, 24],
   "gap": 8,
+  "layout": "horizontal",
   "justifyContent": "center",
   "alignItems": "center",
   "children": [...]
@@ -24,10 +48,11 @@ Detailed patterns and examples for PEN design manipulation.
 ```
 
 ### Text
+
 ```json
 {
   "type": "text",
-  "id": "text-id",
+  "id": "lbl01",
   "name": "Button Label",
   "content": "Click me",
   "fill": "$--primary-foreground",
@@ -39,10 +64,11 @@ Detailed patterns and examples for PEN design manipulation.
 ```
 
 ### Icon
+
 ```json
 {
   "type": "icon_font",
-  "id": "icon-id",
+  "id": "ico01",
   "width": 20,
   "height": 20,
   "iconFontName": "chevron-right",
@@ -51,19 +77,18 @@ Detailed patterns and examples for PEN design manipulation.
 }
 ```
 
-### Component Instance (ref)
+### Component Instance
+
 ```json
 {
   "type": "ref",
-  "id": "instance-id",
-  "ref": "source-component-id",
+  "id": "alert1",
+  "ref": "AlertComponent",
   "name": "Alert/Error",
   "fill": "$--color-error",
   "descendants": {
-    "title-text-id": {
-      "content": "Error occurred",
-      "fill": "$--color-error-foreground"
-    }
+    "titleText": {"content": "Error occurred"},
+    "icon": {"fill": "$--color-error-foreground"}
   }
 }
 ```
@@ -72,55 +97,64 @@ Detailed patterns and examples for PEN design manipulation.
 
 ## Styling
 
-### Fill Values
-```json
-"fill": "$--primary"                    // Token reference
-"fill": "#0F5FFE"                       // Hex color
-"fill": "#ff550080"                     // Hex with alpha
-"fill": {                               // Object form
-  "type": "color",
-  "color": "#ffffff",
-  "enabled": false
-}
-"fill": {                               // Image fill
-  "type": "image",
-  "url": "./image.png",
-  "mode": "fill"
-}
-```
+### Fill
 
-### Corner Radius
 ```json
-"cornerRadius": 8                       // All corners
-"cornerRadius": "$--radius-pill"        // Token (999 = pill)
-"cornerRadius": [8, 8, 0, 0]            // [TL, TR, BR, BL]
+// Token reference
+"fill": "$--primary"
+
+// Hex color
+"fill": "#0F5FFE"
+
+// With alpha
+"fill": "#ff550080"
+
+// Disabled fill
+"fill": {"type": "color", "color": "#ffffff", "enabled": false}
+
+// Image fill
+"fill": {"type": "image", "url": "./hero.png", "mode": "fill"}
 ```
 
 ### Stroke
+
 ```json
+// Basic stroke
 "stroke": {
   "align": "inside",
   "thickness": 1,
   "fill": "$--border"
 }
-```
 
-### Per-Side Stroke
-```json
+// Per-side stroke (bottom only)
 "stroke": {
   "align": "inside",
-  "thickness": { "bottom": 1 },
+  "thickness": {"bottom": 1},
   "fill": "$--border"
 }
 ```
 
-### Shadow Effect
+### Corner Radius
+
+```json
+// All corners
+"cornerRadius": 8
+
+// Token
+"cornerRadius": "$--radius-pill"
+
+// Individual [TL, TR, BR, BL]
+"cornerRadius": [8, 8, 0, 0]
+```
+
+### Shadow
+
 ```json
 "effect": {
   "type": "shadow",
   "shadowType": "outer",
   "color": "#0000000f",
-  "offset": { "x": 0, "y": 2 },
+  "offset": {"x": 0, "y": 2},
   "blur": 3.5,
   "spread": -1
 }
@@ -130,33 +164,48 @@ Detailed patterns and examples for PEN design manipulation.
 
 ## Layout
 
-### Padding Formats
+### Padding
+
 ```json
-"padding": 16                           // All sides
-"padding": [12, 24]                     // [vertical, horizontal]
-"padding": [8, 16, 8, 16]               // [top, right, bottom, left]
+// All sides
+"padding": 16
+
+// [vertical, horizontal]
+"padding": [12, 24]
+
+// [top, right, bottom, left]
+"padding": [8, 16, 8, 16]
 ```
 
 ### Sizing
+
 ```json
-"width": 360                            // Fixed
-"width": "fill_container"               // Flex grow
-"width": "fill_container(360)"          // Flex grow, min 360
-"height": "fit_content(800)"            // Fit content, max 800
+// Fixed
+"width": 360
+
+// Fill available space
+"width": "fill_container"
+
+// Fill with minimum
+"width": "fill_container(360)"
+
+// Fit content with maximum
+"height": "fit_content(800)"
 ```
 
 ---
 
-## Theme Variables
+## Theming
 
-### Definition
+### Variable Definition
+
 ```json
 "variables": {
   "--primary": {
     "type": "color",
     "value": [
-      { "value": "#0F5FFE" },
-      { "value": "#0F5FFE", "theme": { "Mode": "Dark" } }
+      {"value": "#0F5FFE"},
+      {"value": "#3B82F6", "theme": {"Mode": "Dark"}}
     ]
   },
   "--font-primary": {
@@ -171,52 +220,44 @@ Detailed patterns and examples for PEN design manipulation.
 ```
 
 ### Common Tokens
-```
-$--background, $--foreground, $--primary, $--secondary
-$--muted, $--accent, $--destructive, $--border, $--input
-$--primary-foreground, $--secondary-foreground, $--muted-foreground
-$--color-success, $--color-warning, $--color-error, $--color-info
-$--font-primary, $--font-secondary
-$--radius-none, $--radius-xs, $--radius-m, $--radius-pill
-```
+
+| Category | Tokens |
+|----------|--------|
+| **Background** | `$--background`, `$--foreground`, `$--muted`, `$--accent` |
+| **Brand** | `$--primary`, `$--secondary`, `$--destructive` |
+| **Foreground** | `$--primary-foreground`, `$--secondary-foreground`, `$--muted-foreground` |
+| **Semantic** | `$--color-success`, `$--color-warning`, `$--color-error`, `$--color-info` |
+| **UI** | `$--border`, `$--input`, `$--ring` |
+| **Typography** | `$--font-primary`, `$--font-secondary` |
+| **Radii** | `$--radius-none`, `$--radius-xs`, `$--radius-m`, `$--radius-pill` |
 
 ---
 
-## Slots
+## Advanced
 
-Slots define insertion points for child elements:
+### Slots
+
+Define insertion points for child content:
+
 ```json
 {
   "type": "frame",
   "id": "card",
   "name": "Card",
-  "slot": ["header-slot-id", "content-slot-id", "footer-slot-id"],
+  "slot": ["header-slot", "content-slot", "footer-slot"],
   "children": [...]
 }
 ```
 
----
+### AI Context
 
-## AI Context Property
+Add `context` property for AI understanding:
 
-Add `context` for AI understanding:
 ```json
 {
   "type": "frame",
   "name": "Sidebar",
-  "context": "Vertical sidebar navigation with app logo and menu items.",
+  "context": "Vertical navigation with logo at top and menu items below.",
   ...
 }
 ```
-
----
-
-## Quick Queries
-
-| Goal | Pattern |
-|------|---------|
-| Find components | `"reusable": true` |
-| Find buttons | `"name":.*Button` |
-| Find by token | `"fill": "$--primary"` |
-| Find text | `"type": "text"` |
-| Find instances | `"type": "ref"` |

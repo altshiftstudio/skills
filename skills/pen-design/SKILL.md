@@ -1,44 +1,60 @@
 ---
 name: pen-design
-description: Guide for working with Pencil (.pen) design files. Use this skill for reading, creating, or modifying UI layouts, typography, or styling in .pen design files.
+description: Design and manipulate Pencil (.pen) files using MCP tools. Use this skill when (1) creating UI screens, dashboards, or layouts in .pen format, (2) reading or modifying existing .pen designs, (3) working with design system components, (4) generating code from .pen files, or (5) understanding PEN file structure, tokens, or schema.
 ---
 
-# PEN Design Format
+# Pencil Design
 
-Work with .pen design files efficiently.
+Create and manipulate `.pen` design files using Pencil MCP tools.
+
+## Workflow
+
+### 1. Orientation
+
+```
+get_editor_state     → Check active file and selection
+get_guidelines       → Load topic-specific rules (landing-page, design-system, table, code, tailwind)
+batch_get            → Read file structure or find components
+```
+
+### 2. Design (if creating from scratch)
+
+```
+get_style_guide_tags → Browse available visual styles
+get_style_guide      → Load style guide for inspiration
+open_document        → Create new file if needed
+```
+
+### 3. Build
+
+```
+batch_design         → Insert, update, copy, replace, move, delete nodes (max 25 ops/call)
+get_screenshot       → Verify visual output after changes
+snapshot_layout      → Debug layout issues or find clipping problems
+```
+
+### 4. Refine
+
+```
+get_variables        → Read design tokens and themes
+set_variables        → Update tokens for consistent styling
+replace_all_matching_properties → Bulk property updates
+```
+
+---
 
 ## Quick Reference
-
-### Root Structure
-```json
-{
-  "version": "2.6",
-  "children": [...],     // Design elements
-  "themes": {...},       // Theme definitions (e.g., Light/Dark)
-  "variables": {...}     // Design tokens
-}
-```
 
 ### Element Types
 
 | Type | Purpose | Key Properties |
 |------|---------|----------------|
-| `frame` | Container/layout | `layout`, `children`, `gap`, `padding`, `reusable` |
+| `frame` | Container/layout | `layout`, `gap`, `padding`, `children`, `reusable` |
 | `text` | Typography | `content`, `fontFamily`, `fontSize`, `fontWeight` |
-| `rectangle` | Basic shape | `width`, `height`, `fill`, `cornerRadius` |
-| `path` | Vector graphics | `geometry` (SVG path data) |
-| `image` | Raster graphics | `url`, `mode` |
+| `rectangle` | Shape | `width`, `height`, `fill`, `cornerRadius` |
 | `ref` | Component instance | `ref` (source ID), `descendants` (overrides) |
-| `icon_font` | Icon | `iconFontName`, `iconFontFamily` (e.g., "lucide") |
-| `prompt` | AI generation | `model`, `content` |
-
-### Token System
-
-Tokens use `$--` prefix:
-- **Colors**: `$--primary`, `$--foreground`, `$--background`, `$--border`
-- **Semantic**: `$--color-success`, `$--color-warning`, `$--color-error`
-- **Fonts**: `$--font-primary`, `$--font-secondary`
-- **Radii**: `$--radius-none`, `$--radius-m`, `$--radius-pill`
+| `icon_font` | Icon | `iconFontName`, `iconFontFamily` ("lucide") |
+| `path` | Vector | `geometry` (SVG path data) |
 
 ### Layout
 
@@ -47,24 +63,61 @@ Tokens use `$--` prefix:
 | `layout` | `"none"` (absolute), `"horizontal"`, `"vertical"` |
 | `justifyContent` | `start`, `center`, `end`, `space_between` |
 | `alignItems` | `start`, `center`, `end`, `stretch` |
+| `width`/`height` | `360`, `"fill_container"`, `"fill_container(360)"`, `"fit_content"` |
+| `padding` | `16`, `[12, 24]`, `[8, 16, 8, 16]` |
 
-### Sizing
-- Fixed: `360`
-- Flex: `"fill_container"` or `"fill_container(360)"`
-- Fit: `"fit_content"` or `"fit_content(717)"`
+### Tokens
 
-## Common Patterns
+Prefix: `$--`
 
-### For detailed patterns and examples
-See [references/patterns.md](references/patterns.md)
+| Category | Examples |
+|----------|----------|
+| Colors | `$--primary`, `$--foreground`, `$--background`, `$--border` |
+| Semantic | `$--color-success`, `$--color-warning`, `$--color-error` |
+| Typography | `$--font-primary`, `$--font-secondary` |
+| Radii | `$--radius-none`, `$--radius-m`, `$--radius-pill` |
 
-### For complete JSON schema
-See [references/schema.json](references/schema.json)
+---
 
-## Manipulation Guidelines
+## Operations (batch_design)
 
-1. **Generate unique IDs** - 5 alphanumeric chars (e.g., `"xCEfn"`)
-2. **Use tokens** - Prefer `$--primary` over hardcoded colors
-3. **Component naming** - `Category/Variant` (e.g., `"Button/Large/Primary"`)
-4. **Reusable components** - Add `"reusable": true` to source, use `ref` for instances
-5. **Override properties** - Use `descendants` object keyed by child ID
+Operations use JavaScript-like syntax. Every Insert/Copy/Replace needs a binding.
+
+| Op | Syntax | Use |
+|----|--------|-----|
+| **I** | `btn=I(parent, {type: "frame", ...})` | Insert node |
+| **U** | `U(path, {content: "New"})` | Update properties |
+| **C** | `copy=C(sourceId, parent, {...})` | Copy node |
+| **R** | `new=R(path, {type: "text", ...})` | Replace node |
+| **M** | `M(nodeId, newParent, index?)` | Move node |
+| **D** | `D(nodeId)` | Delete node |
+| **G** | `G(nodeId, "stock", "office")` | Apply image fill |
+
+### Component Instances
+
+```javascript
+// Insert instance and override text
+card=I(container, {type: "ref", ref: "CardComp"})
+U(card+"/titleText", {content: "New Title"})
+
+// Replace slot content
+newContent=R(card+"/slot", {type: "text", content: "Custom"})
+```
+
+### Critical Rules
+
+1. **IDs auto-generate** — never set `id` in node data
+2. **Bindings required** — every I/C/R must have `name=...`
+3. **Max 25 ops** — split larger designs across calls
+4. **Copy descendants** — use `descendants` property, not separate U() calls
+5. **Verify visually** — call `get_screenshot` after modifications
+
+---
+
+## Reference Files
+
+| File | When to Read |
+|------|--------------|
+| [mcp-operations.md](references/mcp-operations.md) | Detailed operation syntax, examples, and edge cases |
+| [patterns.md](references/patterns.md) | Element creation examples, styling patterns, theming |
+| [schema.json](references/schema.json) | Authoritative property definitions for validation |
