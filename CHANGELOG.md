@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 
 
+## [1.4.0] - 2026-02-09
+
+- **New Skill**: Added `context-snapshot` for creating durable conversation handoff files.
+    - **Structured capture**: Includes a mandatory workflow to collect goals, decisions, constraints, artifacts, risks, and next steps.
+    - **Reusable template**: Added `skills/context-snapshot/assets/context-template.md` for consistent, copy-ready handoff files.
+    - **Continuation-ready output**: Includes a handoff prompt block so the next agent can resume work with minimal context loss.
+    - **Map/Score/Respond workflow**: Added mandatory territory mapping and depth-mode selection (`quick`, `standard`, `forensic`).
+    - **Stronger fidelity safeguards**: Added forbidden behaviors and explicit `TODO` handling for uncertainty.
+    - **Provenance and confidence**: Added `source` tagging requirements and a confidence gate (`high`, `medium`, `low`).
+    - **Template expansion**: Added mode/confidence metadata, source fields, contradiction tracking, and owner-aware next steps.
+
 ## [1.3.1] - 2026-01-29
 
 - **Pen-Design Skill Rewrite**: Complete overhaul for maximum quality.

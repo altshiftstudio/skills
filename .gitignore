@@ -6,6 +6,7 @@ __pycache__/
 *.pyc
 
 # --- AI Agents & IDE Tools ---
+AGENTS.md
 .agent/
 .gemini/
 .claude/

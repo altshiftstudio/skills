@@ -29,6 +29,7 @@ If you prefer to do it manually:
 
 | Skill | Description |
 | :--- | :--- |
+| [**Context Snapshot**](./skills/context-snapshot/SKILL.md) | Creates a durable handoff file with all important conversation context so another agent can continue work safely. |
 | [**Creativity**](./skills/creativity/SKILL.md) | Generates non-obvious ideas using Verbalized Sampling (VS-CoT). Best for qucikly generating diverse ideas. |
 | [**Design Brief**](./skills/design-brief/SKILL.md) | Create strategic design briefs that empower designers. Includes problem formula, success criteria, and edge cases logic. |
 | [**Obsidian Canvas**](./skills/obsidian-canvas/SKILL.md) | Create and edit JSON Canvas files (`.canvas`) used in Obsidian. Uses custom Pythin CLI to avoid collisions and weird layouts. |
